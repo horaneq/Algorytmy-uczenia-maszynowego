@@ -163,7 +163,7 @@ if __name__ == "__main__":
     tsne = TSNE(n_components=2, perplexity=30, random_state=42)
     X_train_2D = tsne.fit_transform(X_train)
 
-    k_selected = [1, 7, 15]
+    k_selected = [1, 7]
     p_selected = [1, 2, 4]
 
     n_rows = len(k_selected)
