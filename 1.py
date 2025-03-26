@@ -31,7 +31,7 @@ class KNNClassifier:
     def _get_distance(self, x1, x2):
         return np.sum(np.abs(x1 - x2) ** self.p) ** (1.0 / self.p)
 
-# METRYKI OCENY
+# Metryki oceny
 def accuracy(y_true, y_pred):
     return np.mean(y_true == y_pred)
 
@@ -66,7 +66,7 @@ def f1_score(y_true, y_pred):
         return 0
     return 2 * (prec * rec) / (prec + rec)
 
-# WALIDACJA KRZYŻOWA
+# Walidacja krzyżowa
 def cross_validate_knn(X, y, k_values, p_values, folds=5):
     best_k = None
     best_p = None
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     plt.legend(title="Klasa")
     plt.show()
 
-    k_values = [1, 3, 5, 7, 9, 11, 13, 15]
+    k_values = [1, 2, 3, 5, 7, 9, 11, 13, 15]
     p_values = [1, 1.5, 2, 3, 4]
     best_k, best_p, best_acc, results = cross_validate_knn(X, y, k_values=k_values, p_values=p_values, folds=10)
     print("Najlepsze parametry z walidacji krzyżowej:")
@@ -114,6 +114,17 @@ if __name__ == "__main__":
     print(" - p =", best_p)
     print(f"Średnie accuracy (CV) = {best_acc:.4f}")
 
+    df_results = pd.DataFrame(results, columns=["k", "p", "mean_accuracy"])
+    pivot_table = df_results.pivot(index="k", columns="p", values="mean_accuracy")
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(pivot_table, annot=True, fmt=".3f", cmap="viridis")
+    plt.xlabel("Wartość p (metryka Minkowskiego)")
+    plt.ylabel("Liczba sąsiadów (k)")
+    plt.title("Tabela średnich accuracy (CV) dla różnych wartości k i p")
+    plt.show()
+
+
+# Wykres błędnej klasyfikacji w zależności od k dla różnych p 
     df_results = pd.DataFrame(results, columns=["k", "p", "mean_accuracy"])
     pivot = df_results.pivot(index="k", columns="p", values="mean_accuracy")
     plt.figure(figsize=(8, 6))
@@ -135,18 +146,20 @@ if __name__ == "__main__":
     prec = precision(y_test, y_pred)
     rec = recall(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
-    print(f"\nWyniki na zbiorze testowym (k={best_k}, p={best_p}):")
+    print(f"Wyniki na zbiorze testowym (k={best_k}, p={best_p}):")
     print(f"Accuracy:  {acc:.4f}")
     print(f"Precision: {prec:.4f}")
     print(f"Recall:    {rec:.4f}")
     print(f"F1-score:  {f1:.4f}")
 
+# Macierz pomyłek
     cm = confusion_matrix(y_test, y_pred)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=data.target_names)
     disp.plot(cmap="Blues")
     plt.title("Macierz pomyłek dla KNN")
     plt.show()
 
+# Wizualizacja z wykorzystaniem t-SNE
     tsne = TSNE(n_components=2, perplexity=30, random_state=42)
     X_train_2D = tsne.fit_transform(X_train)
 
